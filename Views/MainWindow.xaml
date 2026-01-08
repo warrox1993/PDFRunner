@@ -1,0 +1,415 @@
+﻿<Window x:Class="ConvertPDF.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:ConvertPDF.ViewModels"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:converters="clr-namespace:ConvertPDF.Converters"
+        Title="ConvertPDF Pro" 
+        MinHeight="700" MinWidth="1000"
+        Height="800" Width="1200"
+        WindowStartupLocation="CenterScreen"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        AllowDrop="True" Drop="Window_Drop"
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="Segoe UI"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}">
+
+
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
+        <converters:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+        <converters:ConversionFormatConverter x:Key="FormatConverter"/>
+        <converters:FormatToIconConverter x:Key="FormatToIconConverter"/>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/> <!-- Header -->
+            <RowDefinition Height="*"/>    <!-- Main Scrollable Content -->
+            <RowDefinition Height="Auto"/> <!-- Footer / Action Bar -->
+        </Grid.RowDefinitions>
+
+        <!-- HEADER -->
+        <Border Grid.Row="0" Background="{DynamicResource MaterialDesignPaper}" Padding="24,16" Panel.ZIndex="10">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="4" ShadowDepth="1" Direction="270" Color="Black" Opacity="0.15"/>
+            </Border.Effect>
+            <Grid>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Background="{DynamicResource PrimaryHueMidBrush}" CornerRadius="8" Width="36" Height="36" Margin="0,0,12,0">
+                        <materialDesign:PackIcon Kind="FilePdfBox" Width="22" Height="22" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="ConvertPDF" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" FontFamily="Segoe UI"/>
+                    <Border Background="#FFC107" CornerRadius="4" Padding="8,2" Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="PRO" FontSize="11" FontWeight="Heavy" Foreground="Black" FontFamily="Segoe UI"/>
+                    </Border>
+                    
+                    <!-- LIVE Badge for Folder Watching (Optional - shows when watching is active) -->
+                    <!-- Uncomment and bind to IsWatching property when implementing folder watching visibility -->
+                    <!--
+                    <Border Background="#F44336" CornerRadius="12" Padding="10,4" Margin="12,0,0,0" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="6" Height="6" Fill="White" Margin="0,0,6,0">
+                                <Ellipse.Triggers>
+                                    <EventTrigger RoutedEvent="Loaded">
+                                        <BeginStoryboard>
+                                            <Storyboard RepeatBehavior="Forever">
+                                                <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1" To="0.2" Duration="0:0:0.8" AutoReverse="True"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                </Ellipse.Triggers>
+                            </Ellipse>
+                            <TextBlock Text="LIVE" FontSize="10" FontWeight="Heavy" Foreground="White" FontFamily="Segoe UI"/>
+                        </StackPanel>
+                    </Border>
+                    -->
+                </StackPanel>
+                
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Command="{Binding OpenSettingsCommand}" Style="{DynamicResource MaterialDesignIconForegroundButton}" ToolTip="Paramètres" Width="40" Height="40">
+                        <materialDesign:PackIcon Kind="Cog" Width="24" Height="24" Foreground="{DynamicResource MaterialDesignBodySecondary}"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- MAIN CONTENT (Centered Card) -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0,40">
+            <StackPanel MaxWidth="850" HorizontalAlignment="Center">
+                
+                <!-- WELCOME / HERO TEXT -->
+                <TextBlock Text="Convertisseur de Documents" FontSize="28" FontWeight="SemiBold" Foreground="{DynamicResource MaterialDesignBody}" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                <TextBlock Text="Rapide, Sécurisé et Haute Fidélité" FontSize="16" Foreground="{DynamicResource MaterialDesignBodySecondary}" HorizontalAlignment="Center" Margin="0,0,0,40"/>
+
+                <!-- MODE SELECTOR (Segmented Control) -->
+                <Border Background="{DynamicResource MaterialDesignDivider}" Padding="4" CornerRadius="24" HorizontalAlignment="Center" Margin="0,0,0,24">
+                    <StackPanel Orientation="Horizontal">
+                        <!-- Conversion Mode -->
+                        <Button Command="{Binding SetModeCommand}" CommandParameter="0"
+                                materialDesign:ButtonAssist.CornerRadius="20"
+                                Height="40" Padding="16,0" Margin="2">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsConversionMode}" Value="True">
+                                            <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="SwapHorizontal" Width="18" Height="18" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <TextBlock Text="Conversion" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Merge PDF -->
+                        <Button Command="{Binding SetModeCommand}" CommandParameter="1"
+                                materialDesign:ButtonAssist.CornerRadius="20"
+                                Height="40" Padding="16,0" Margin="2">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsMergePdfMode}" Value="True">
+                                            <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="FileLinkOutline" Width="18" Height="18" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <TextBlock Text="Fusion PDF" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- PDF Tools -->
+                        <Button Command="{Binding SetModeCommand}" CommandParameter="2"
+                                materialDesign:ButtonAssist.CornerRadius="20"
+                                Height="40" Padding="16,0" Margin="2">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsPdfToolsMode}" Value="True">
+                                            <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="Cog" Width="18" Height="18" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <TextBlock Text="Outils PDF" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Transcription -->
+                        <Button Command="{Binding SetModeCommand}" CommandParameter="3"
+                                materialDesign:ButtonAssist.CornerRadius="20"
+                                Height="40" Padding="16,0" Margin="2">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsTranscriptionMode}" Value="True">
+                                            <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="Microphone" Width="18" Height="18" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <TextBlock Text="Studio" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Border>
+
+                <!-- MAIN CONTENT CARD -->
+                <materialDesign:Card UniformCornerRadius="16" Padding="0" Margin="0,0,0,24">
+                    <Grid>
+                        <!-- Drop Zone (Visible when no files) -->
+                        <Grid MinHeight="300" AllowDrop="True" Drop="Window_Drop" MouseLeftButtonDown="DropZone_MouseLeftButtonDown" Cursor="Hand" Background="Transparent"
+                              Visibility="{Binding HasFiles, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <!-- Icon -->
+                                <Border Background="{DynamicResource MaterialDesignCardBackground}" Width="80" Height="80" CornerRadius="40" Margin="0,0,0,24">
+                                    <Border.Effect>
+                                        <DropShadowEffect BlurRadius="4" ShadowDepth="1" Direction="270" Color="Black" Opacity="0.15"/>
+                                    </Border.Effect>
+                                    <materialDesign:PackIcon Kind="CloudUpload" Width="40" Height="40" Foreground="{DynamicResource PrimaryHueMidBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                
+                                <!-- Dynamic Title & Subtitle -->
+                                <TextBlock Text="{Binding DropZoneTitle}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource MaterialDesignBody}" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                                <TextBlock Text="{Binding DropZoneSubtitle}" FontSize="15" Foreground="{DynamicResource MaterialDesignBodySecondary}" HorizontalAlignment="Center"/>
+
+                                <!-- Format Icons (Visible only in Conversion mode) -->
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,24,0,0"
+                                            Visibility="{Binding IsConversionMode, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <materialDesign:PackIcon Kind="FilePdfBox" Width="24" Height="24" Foreground="#EA4335" Margin="8" ToolTip="PDF"/>
+                                    <materialDesign:PackIcon Kind="FileWordBox" Width="24" Height="24" Foreground="#4285F4" Margin="8" ToolTip="Word"/>
+                                    <materialDesign:PackIcon Kind="FileExcelBox" Width="24" Height="24" Foreground="#34A853" Margin="8" ToolTip="Excel"/>
+                                    <materialDesign:PackIcon Kind="FileCode" Width="24" Height="24" Foreground="#A142F4" Margin="8" ToolTip="HTML"/>
+                                    <materialDesign:PackIcon Kind="Image" Width="24" Height="24" Foreground="#FBBC05" Margin="8" ToolTip="Images"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- File List (Visible when files are present) -->
+                        <StackPanel Visibility="{Binding HasFiles, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <Border Background="{DynamicResource MaterialDesignDivider}" Padding="20,12" CornerRadius="16,16,0,0">
+                                <Grid>
+                                    <TextBlock Text="Fichiers sélectionnés" FontWeight="Bold" Foreground="#5F6368" VerticalAlignment="Center"/>
+                                    <Button HorizontalAlignment="Right" Content="Tout effacer" Command="{Binding ClearListCommand}" 
+                                            Style="{DynamicResource MaterialDesignFlatButton}" Height="Auto" Padding="8,2" FontSize="12"/>
+                                </Grid>
+                            </Border>
+                            
+                            <ListBox ItemsSource="{Binding Files}"
+                                     MaxHeight="400"
+                                     HorizontalContentAlignment="Stretch" BorderThickness="0" Background="Transparent"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Border Background="{DynamicResource MaterialDesignChipBackground}" CornerRadius="8" Width="40" Height="40" Margin="16,0">
+                                                <materialDesign:PackIcon Kind="{Binding TargetFormat, Converter={StaticResource FormatToIconConverter}}" 
+                                                                         Foreground="#5F6368" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,16,0">
+                                                <TextBlock Text="{Binding FileName}" FontWeight="SemiBold" Foreground="{DynamicResource MaterialDesignBody}" FontSize="14"/>
+                                                <TextBlock Text="{Binding FullPath}" FontSize="11" Foreground="{DynamicResource MaterialDesignBodySecondary}" TextTrimming="CharacterEllipsis" Opacity="0.7"/>
+                                            </StackPanel>
+
+                                            <ComboBox Grid.Column="2" ItemsSource="{Binding Source={x:Static vm:MainWindowViewModel.ConversionFormats}}"
+                                                      SelectedItem="{Binding TargetFormat}"
+                                                      Visibility="{Binding IsConverting, Converter={StaticResource InverseBooleanToVisibilityConverter}}"
+                                                      Style="{DynamicResource MaterialDesignOutlinedComboBox}"
+                                                      VerticalAlignment="Center" Height="40" Width="110" Margin="0,0,12,0" Padding="8,4">
+                                                <ComboBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <materialDesign:PackIcon Kind="{Binding Converter={StaticResource FormatToIconConverter}}" 
+                                                                                     Foreground="{DynamicResource MaterialDesignBodySecondary}" Width="16" Height="16" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                                            <TextBlock Text="{Binding Converter={StaticResource FormatConverter}}" FontSize="12" VerticalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </ComboBox.ItemTemplate>
+                                            </ComboBox>
+
+                                            <Grid Grid.Column="3" Width="80" Margin="0,0,12,0">
+                                                <StackPanel Visibility="{Binding IsConverting, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                    <ProgressBar Value="{Binding ProgressValue}" Maximum="100" Height="4" Style="{StaticResource WowProgressBar}"/>
+                                                </StackPanel>
+                                                <materialDesign:PackIcon Kind="CheckCircle" Foreground="#0F9D58" Width="18" Height="18" HorizontalAlignment="Right"
+                                                                         Visibility="{Binding IsCompleted, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                            </Grid>
+                                            
+                                            <Button Grid.Column="4" Style="{DynamicResource MaterialDesignIconForegroundButton}"
+                                                    Command="{Binding PreviewFileCommand}" Margin="0,0,4,0" Padding="4">
+                                                <materialDesign:PackIcon Kind="Eye" Width="18" Height="18" Foreground="#1A73E8"/>
+                                            </Button>
+                                            
+                                            <Button Grid.Column="5" Style="{DynamicResource MaterialDesignIconForegroundButton}"
+                                                    Command="{Binding DataContext.RemoveFileCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding}" Margin="0,0,16,0" Padding="4">
+                                                <materialDesign:PackIcon Kind="Close" Width="18" Height="18" Foreground="#d93025"/>
+                                            </Button>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </StackPanel>
+                    </Grid>
+                </materialDesign:Card>
+
+                <!-- MAIN ACTION BUTTON -->
+                <Button Command="{Binding ExecuteActionCommand}"
+                        Background="#4285F4" BorderThickness="0"
+                        Foreground="White" FontWeight="Bold" FontSize="16" Height="56"
+                        HorizontalAlignment="Stretch"
+                        materialDesign:ButtonAssist.CornerRadius="28"
+                        IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBooleanConverter}}">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <!-- Show if files are present in Conversion/Merge modes -->
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding HasFiles}" Value="True"/>
+                                        <Condition Binding="{Binding IsConversionMode}" Value="True"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </MultiDataTrigger>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding HasFiles}" Value="True"/>
+                                        <Condition Binding="{Binding IsMergePdfMode}" Value="True"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </MultiDataTrigger>
+                                <!-- Always show in Tools/Transcription modes -->
+                                <DataTrigger Binding="{Binding IsPdfToolsMode}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsTranscriptionMode}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                    <Button.Effect>
+                        <DropShadowEffect Color="#4285F4" BlurRadius="15" ShadowDepth="4" Opacity="0.4"/>
+                    </Button.Effect>
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="ChevronRight" Width="24" Height="24" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding ActionButtonText}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- GLOBAL PROGRESS OVERLAY (Visible during Batch) -->
+        <Border Grid.Row="2" Height="4" VerticalAlignment="Top" Background="Transparent" 
+                Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <ProgressBar Value="{Binding ProgressValue}" Maximum="100" Height="4" IsIndeterminate="False"
+                         Foreground="{DynamicResource PrimaryHueMidBrush}" Background="Transparent" BorderThickness="0"/>
+        </Border>
+
+        <materialDesign:Snackbar MessageQueue="{Binding MessageQueue}" x:Name="MainSnackbar"/>
+
+        <!-- SETTINGS OVERLAY -->
+        <Grid Visibility="{Binding IsSettingsOpen, Converter={StaticResource BooleanToVisibilityConverter}}" Background="#BB000000" Panel.ZIndex="100">
+            <Border Background="{DynamicResource MaterialDesignPaper}" MinWidth="650" MaxWidth="750" MinHeight="450" MaxHeight="650" CornerRadius="16" Padding="40" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="20" ShadowDepth="5" Direction="270" Color="Black" Opacity="0.4"/>
+                </Border.Effect>
+                <StackPanel>
+                    <Grid Margin="0,0,0,32">
+                        <TextBlock Text="Paramètres" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource MaterialDesignBody}"/>
+                        <Button HorizontalAlignment="Right" Command="{Binding CloseSettingsCommand}" Style="{DynamicResource MaterialDesignIconButton}">
+                            <materialDesign:PackIcon Kind="Close" Width="24" Height="24"/>
+                        </Button>
+                    </Grid>
+
+                    <TextBlock Text="Mode Turbo" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,12"/>
+                    <ToggleButton IsChecked="{Binding TurboMode}" Style="{DynamicResource MaterialDesignSwitchToggleButton}" Margin="0,0,0,32"/>
+
+                    <TextBlock Text="Mode Sombre 🌙" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,12"/>
+                    <ToggleButton IsChecked="{Binding IsDarkMode}" Style="{DynamicResource MaterialDesignSwitchToggleButton}" Margin="0,0,0,32"/>
+
+                    <TextBlock Text="Activer OCR" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,12"/>
+                    <ToggleButton IsChecked="{Binding EnableOcr}" Style="{DynamicResource MaterialDesignSwitchToggleButton}" Margin="0,0,0,32"/>
+
+                    <TextBlock Text="Langue OCR" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,12"/>
+                    <ComboBox ItemsSource="{Binding AvailableLanguages}" SelectedItem="{Binding SelectedLanguage}" DisplayMemberPath="DisplayName" 
+                              Margin="0,0,0,24" Height="48"/>
+
+                    <Separator Margin="0,8,0,24"/>
+
+                    <TextBlock Text="Dossier de Sortie" FontWeight="Bold" FontSize="16" Margin="0,0,0,16" Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                    
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                        <ToggleButton IsChecked="{Binding AlwaysAskForOutputFolder}" Style="{DynamicResource MaterialDesignSwitchToggleButton}" Margin="0,0,12,0"/>
+                        <TextBlock Text="Toujours me demander le dossier de destination" VerticalAlignment="Center" Foreground="{DynamicResource MaterialDesignBodySecondary}"/>
+                    </StackPanel>
+
+                    <TextBlock Text="Dossier par défaut" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,12" 
+                               Visibility="{Binding AlwaysAskForOutputFolder, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                    <Grid Margin="0,0,0,24" Visibility="{Binding AlwaysAskForOutputFolder, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Text="{Binding DefaultOutputFolder}" IsReadOnly="True" Style="{DynamicResource MaterialDesignOutlinedTextBox}" 
+                                 materialDesign:HintAssist.Hint="Aucun dossier sélectionné" Height="48" VerticalAlignment="Center"/>
+                        <Button Grid.Column="1" Command="{Binding BrowseDefaultOutputFolderCommand}" Style="{DynamicResource MaterialDesignIconButton}" Margin="12,0,0,0">
+                            <materialDesign:PackIcon Kind="FolderOpen" Width="24" Height="24"/>
+                        </Button>
+                    </Grid>
+
+                    <Separator Margin="0,8,0,24"/>
+
+                    <TextBlock Text="Intégration Windows" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,12"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,24">
+                        <ToggleButton IsChecked="{Binding IsShellRegistered}" Style="{DynamicResource MaterialDesignSwitchToggleButton}" Margin="0,0,12,0"/>
+                        <TextBlock Text="Menu clic-droit (Convertir avec ConvertPDF)" VerticalAlignment="Center" Foreground="{DynamicResource MaterialDesignBodySecondary}"/>
+                    </StackPanel>
+
+                    <Button Content="🛠️ Nettoyer &amp; Réparer" Command="{Binding RunRepairCommand}" 
+                            Style="{DynamicResource MaterialDesignOutlinedButton}" HorizontalAlignment="Left"
+                            Margin="0,0,0,24"/>
+
+                    <Button Content="Fermer" Command="{Binding CloseSettingsCommand}" HorizontalAlignment="Right" Padding="32,12"
+                            Background="#4285F4" Foreground="White" FontSize="14" FontWeight="Medium" 
+                            materialDesign:ButtonAssist.CornerRadius="8" Height="48"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

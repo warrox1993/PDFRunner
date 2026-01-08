@@ -1,0 +1,41 @@
+# Visual Studio
+.vs/
+bin/
+obj/
+*.user
+*.suo
+*.userprefs
+
+# Temporary files
+*.log
+*.txt
+*_wpftmp.csproj
+error_with_context.txt
+launch_error.log
+warnings.log
+
+# VS Code
+.vscode/
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+
+# Large binaries and models
+*.bin
+*.bin.tmp
+*.tmp
+ffmpeg.exe
+ffprobe.exe
+*.dll
+*.so
+*.dylib
